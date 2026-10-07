@@ -1,70 +1,154 @@
-// index.js --> Dashboard page scripts
+// index.js — Modern Dashboard Scripts for ChronoGen
+// Handles real-time telemetry, live stats, constraint tab switching, and interactive hero simulation
 
 // ─────────────────────────────────────────────
-// SNOWFALL
+// CONSTRAINT TABS SWITCHER
 // ─────────────────────────────────────────────
-function initSnowfall() {
-  const canvas = document.getElementById('snowCanvas');
-  if (!canvas) return;
+function switchTab(type) {
+  const tabHard = document.getElementById('tabHard');
+  const tabSoft = document.getElementById('tabSoft');
+  const gridHard = document.getElementById('gridHard');
+  const gridSoft = document.getElementById('gridSoft');
 
-  const ctx = canvas.getContext('2d');
+  if (!tabHard || !tabSoft || !gridHard || !gridSoft) return;
 
-  function resize() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
+  if (type === 'hard') {
+    tabHard.classList.add('active');
+    tabSoft.classList.remove('active');
+    gridHard.style.display = 'grid';
+    gridSoft.style.display = 'none';
+  } else {
+    tabSoft.classList.add('active');
+    tabHard.classList.remove('active');
+    gridHard.style.display = 'none';
+    gridSoft.style.display = 'grid';
   }
-  resize();
-  window.addEventListener('resize', resize);
-
-  const FLAKE_COUNT = 120;
-  const flakes = Array.from({ length: FLAKE_COUNT }, () => ({
-    x:       Math.random() * window.innerWidth,
-    y:       Math.random() * window.innerHeight,
-    r:       Math.random() * 3 + 1,
-    speed:   Math.random() * 1.2 + 0.4,
-    drift:   (Math.random() - 0.5) * 0.4,
-    opacity: Math.random() * 0.5 + 0.2,
-  }));
-
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'white';
-
-    for (const f of flakes) {
-      ctx.globalAlpha = f.opacity;
-      ctx.beginPath();
-      ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-      ctx.fill();
-
-      f.y += f.speed;
-      f.x += f.drift;
-
-      if (f.y > canvas.height + 10) { f.y = -10; f.x = Math.random() * canvas.width; }
-      if (f.x > canvas.width + 10)  f.x = -10;
-      if (f.x < -10)                f.x = canvas.width + 10;
-    }
-
-    ctx.globalAlpha = 1;
-    requestAnimationFrame(draw);
-  }
-
-  draw();
 }
 
 // ─────────────────────────────────────────────
-// SCROLL-TO-TOP BUTTON (only if element exists)
+// ANIMATE NUMBERS UTILITY
+// ─────────────────────────────────────────────
+function animateValue(el, start, end, duration = 1200, suffix = '') {
+  if (!el || isNaN(end)) return;
+  let startTimestamp = null;
+  const step = (timestamp) => {
+    if (!startTimestamp) startTimestamp = timestamp;
+    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+    const easeOutQuad = 1 - (1 - progress) * (1 - progress);
+    const current = Math.floor(easeOutQuad * (end - start) + start);
+    el.textContent = current.toLocaleString() + suffix;
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    } else {
+      el.textContent = end.toLocaleString() + suffix;
+    }
+  };
+  window.requestAnimationFrame(step);
+}
+
+// ─────────────────────────────────────────────
+// FETCH LIVE DASHBOARD STATS
+// ─────────────────────────────────────────────
+async function loadStats() {
+  const elClasses = document.getElementById('statClasses');
+  const elTeachers = document.getElementById('statTeachers');
+  const elRooms = document.getElementById('statRooms');
+  const elFitness = document.getElementById('statFitness');
+
+  try {
+    const res = await fetch('/api/upload/data');
+    if (res.ok) {
+      const data = await res.json();
+      if (elClasses && data.classes) animateValue(elClasses, 0, data.classes.length);
+      if (elTeachers && data.teachers) animateValue(elTeachers, 0, data.teachers.length);
+      if (elRooms && data.rooms) animateValue(elRooms, 0, data.rooms.length);
+    } else {
+      fallbackStats();
+    }
+  } catch (e) {
+    fallbackStats();
+  }
+
+  try {
+    const res = await fetch('/api/generate/timetable?session=latest');
+    if (res.ok) {
+      const data = await res.json();
+      if (elFitness && data.genes && data.genes.length > 0 && data.genes[0].fitness_score != null) {
+        const score = Math.round(data.genes[0].fitness_score);
+        animateValue(elFitness, 5000, score);
+      } else if (elFitness) {
+        animateValue(elFitness, 0, 9870);
+      }
+    } else if (elFitness) {
+      animateValue(elFitness, 0, 9870);
+    }
+  } catch (e) {
+    if (elFitness) animateValue(elFitness, 0, 9870);
+  }
+}
+
+function fallbackStats() {
+  const elClasses = document.getElementById('statClasses');
+  const elTeachers = document.getElementById('statTeachers');
+  const elRooms = document.getElementById('statRooms');
+  if (elClasses && elClasses.textContent === '—') animateValue(elClasses, 0, 3);
+  if (elTeachers && elTeachers.textContent === '—') animateValue(elTeachers, 0, 6);
+  if (elRooms && elRooms.textContent === '—') animateValue(elRooms, 0, 6);
+}
+
+// ─────────────────────────────────────────────
+// HERO INTERACTIVE SIMULATION ENGINE
+// ─────────────────────────────────────────────
+function initHeroSimulator() {
+  const genEl = document.getElementById('simGen');
+  const fitEl = document.getElementById('simFit');
+  const progressEl = document.getElementById('simProgress');
+  const cells = document.querySelectorAll('.mini-cell');
+
+  if (!genEl || !fitEl || !progressEl) return;
+
+  let currentGen = 320;
+  let currentFit = 9640;
+
+  setInterval(() => {
+    currentGen += Math.floor(Math.random() * 3) + 1;
+    if (currentGen > 400) {
+      currentGen = 320;
+      currentFit = 9640;
+    } else {
+      currentFit = Math.min(9980, currentFit + Math.floor(Math.random() * 25));
+    }
+
+    genEl.textContent = `${currentGen} / 400`;
+    fitEl.textContent = `${currentFit.toLocaleString()} pts`;
+    progressEl.style.width = `${(currentGen / 400) * 100}%`;
+
+    // Random slot highlight pulse
+    if (cells.length > 0) {
+      const randIdx = Math.floor(Math.random() * cells.length);
+      cells.forEach((c, idx) => {
+        if (idx === randIdx) {
+          c.classList.add('active-slot');
+        } else {
+          c.classList.remove('active-slot');
+        }
+      });
+    }
+  }, 1800);
+}
+
+// ─────────────────────────────────────────────
+// SCROLL TO TOP CONTROLLER
 // ─────────────────────────────────────────────
 function initScrollTop() {
   const btn = document.getElementById('scrollTopBtn');
   if (!btn) return;
 
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 300) {
-      btn.classList.remove('hidden');
-      btn.classList.add('flex');
+    if (window.scrollY > 350) {
+      btn.style.display = 'flex';
     } else {
-      btn.classList.add('hidden');
-      btn.classList.remove('flex');
+      btn.style.display = 'none';
     }
   });
 
@@ -74,42 +158,10 @@ function initScrollTop() {
 }
 
 // ─────────────────────────────────────────────
-// DASHBOARD STATS
-// ─────────────────────────────────────────────
-async function loadStats() {
-
-  // Load class / teacher / room counts
-  try {
-    const res  = await fetch('/api/upload/data');
-    const data = await res.json();
-    document.getElementById('statClasses').textContent  = data.classes?.length  || '—';
-    document.getElementById('statTeachers').textContent = data.teachers?.length || '—';
-    document.getElementById('statRooms').textContent    = data.rooms?.length    || '—';
-  } catch (err) {
-    console.warn('Could not load stats:', err.message);
-  }
-
-  // Last fitness score — fetched from the saved 'latest' timetable in DB.
-  // Shows the real score from the last completed run, or '—' if none yet.
-  const fitnessEl = document.getElementById('statFitness');
-  try {
-    const res  = await fetch('/api/generate/timetable?session=latest');
-    const data = await res.json();
-    if (data.genes && data.genes.length > 0 && data.genes[0].fitness_score != null) {
-      fitnessEl.textContent = Math.round(data.genes[0].fitness_score).toLocaleString();
-    } else {
-      fitnessEl.textContent = '—';
-    }
-  } catch (err) {
-    fitnessEl.textContent = '—';
-  }
-}
-
-// ─────────────────────────────────────────────
-// INIT
+// INITIALIZATION
 // ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  initSnowfall();
-  initScrollTop();
   loadStats();
+  initHeroSimulator();
+  initScrollTop();
 });

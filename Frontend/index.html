@@ -1,322 +1,457 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>ChronoGen — AI Timetable Generator</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css"/>
-<link rel="stylesheet" href="/index.css" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChronoGen — Next-Gen AI Timetable Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css"/>
+  <link rel="stylesheet" href="/index.css"/>
 </head>
 <body>
 
-<!-- CURSOR -->
-<div id="cur">
-  <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="18" cy="18" r="16" fill="#FF3B3B" stroke="#111" stroke-width="2.2"/>
-    <path d="M2 18 H34" stroke="#111" stroke-width="2.5"/>
-    <circle cx="18" cy="18" r="6.5" fill="white" stroke="#111" stroke-width="2"/>
-    <circle cx="18" cy="18" r="3.8" fill="#FFD700"/>
-    <circle cx="13.5" cy="12.5" r="2.8" fill="rgba(255,255,255,.28)"/>
-  </svg>
-</div>
-<div id="cur-trail"></div>
+  <!-- Ambient Glow Background -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+  <div class="mesh-grid"></div>
 
-<!-- POKE TRANSITION -->
-<div id="pokeLayer">
-  <div id="pokeFlash"></div>
-  <img id="pokeBall" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt=""/>
-  <img id="pokeMon" src="" alt=""/>
-  <div id="pokeName"></div>
-</div>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <div class="brand-icon">
+          <i class="ri-cpu-line"></i>
+        </div>
+        <div>
+          <span class="brand-title">ChronoGen</span>
+        </div>
+        <span class="brand-tag">AI v2.4</span>
+      </a>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-inner">
-    <div class="logo">
-      <div class="logo-orb"><i class="ri-time-line" style="color:white;font-size:1rem;"></i></div>
-      <span class="logo-text">ChronoGen</span>
+      <div class="nav-menu">
+        <a href="/" class="nav-link active">Dashboard</a>
+        <a href="/input" class="nav-link">Input Data</a>
+        <a href="/generate" class="nav-link">Generate</a>
+        <a href="/output" class="nav-link">Timetable</a>
+      </div>
 
+      <div class="nav-actions">
+        <a href="/generate" class="btn btn-primary">
+          <i class="ri-flashlight-line"></i> Run Engine
+        </a>
+      </div>
     </div>
-    <div class="nav-links">
-      <a href="/"         class="nav-link nav-active">Dashboard</a>
-      <a href="/input"    class="nav-link">Input Data</a>
-      <a href="/generate" class="nav-link">Generate</a>
-      <a href="/output"   class="nav-link">Timetable</a>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-pill">
+          <span class="pulse-dot"></span>
+          <span>Genetic Evolution Engine · 15 Constraint Matrix</span>
+        </div>
+
+        <h1 class="hero-headline">
+          Build Clash-Free <br/>
+          <span class="text-gradient">Timetables in Seconds.</span>
+        </h1>
+
+        <p class="hero-description">
+          Say goodbye to manual scheduling headaches. ChronoGen harnesses custom genetic algorithms to evolve clash-free, mathematically optimal institutional timetables in real-time.
+        </p>
+
+        <div class="hero-cta">
+          <a href="/input" class="btn btn-primary btn-lg">
+            <i class="ri-database-2-line"></i> Load Data Studio
+          </a>
+          <a href="/generate" class="btn btn-secondary btn-lg">
+            <i class="ri-play-circle-line"></i> Start Evolution
+          </a>
+        </div>
+
+        <div class="feature-badges">
+          <div class="f-badge"><i class="ri-shield-check-line"></i> Zero Room Clashes</div>
+          <div class="f-badge"><i class="ri-user-star-line"></i> Teacher Workload Balancing</div>
+          <div class="f-badge"><i class="ri-pulse-line"></i> Live SSE Telemetry</div>
+          <div class="f-badge"><i class="ri-file-download-line"></i> 1-Click Multi Export</div>
+        </div>
+      </div>
+
+      <!-- Live Interactive Simulation Card -->
+      <div class="hero-card">
+        <div class="card-topbar">
+          <div class="topbar-dots">
+            <span class="dot-red"></span>
+            <span class="dot-yellow"></span>
+            <span class="dot-green"></span>
+          </div>
+          <span class="card-title-badge">GA_CORE :: OPTIMIZER</span>
+        </div>
+
+        <div class="sim-screen">
+          <div class="sim-row">
+            <span class="sim-label">Evolution State:</span>
+            <span class="sim-value" id="simState" style="color: #34d399;">Active Convergence</span>
+          </div>
+          <div class="sim-row">
+            <span class="sim-label">Generation:</span>
+            <span class="sim-value" id="simGen">342 / 400</span>
+          </div>
+          <div class="sim-row">
+            <span class="sim-label">Current Fitness:</span>
+            <span class="sim-value" id="simFit" style="color: #a78bfa;">9,870 pts</span>
+          </div>
+          <div class="sim-row">
+            <span class="sim-label">Constraint Violations:</span>
+            <span class="sim-value" id="simClashes" style="color: #38bdf8;">0 (Optimal)</span>
+          </div>
+
+          <div class="sim-progress-bar">
+            <div class="sim-progress-fill" id="simProgress"></div>
+          </div>
+
+          <!-- Mini Timetable Visual Grid -->
+          <div class="sim-grid-mini">
+            <div class="mini-cell success-slot">CS-101 ✓</div>
+            <div class="mini-cell active-slot">MATH-202</div>
+            <div class="mini-cell success-slot">PHY-LAB ✓</div>
+            <div class="mini-cell success-slot">ENG-101 ✓</div>
+            <div class="mini-cell success-slot">EE-304 ✓</div>
+            <div class="mini-cell success-slot">CHEM-LAB ✓</div>
+            <div class="mini-cell active-slot">AI-401</div>
+            <div class="mini-cell success-slot">DS-201 ✓</div>
+          </div>
+        </div>
+
+        <div class="card-foot">
+          <div class="sim-status">
+            <i class="ri-checkbox-circle-fill"></i> Hard Constraints Satisfied (100%)
+          </div>
+          <a href="/generate" style="color: var(--primary-light); text-decoration: none; font-size: 0.78rem;">
+            Open Live Console →
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Stats Bar -->
+  <section class="stats-strip">
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-icon icon-purple">
+          <i class="ri-community-line"></i>
+        </div>
+        <div class="stat-val" id="statClasses">—</div>
+        <div class="stat-title">Registered Classes</div>
+        <div class="stat-trend trend-up"><i class="ri-arrow-up-line"></i> Active batches</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon icon-cyan">
+          <i class="ri-user-follow-line"></i>
+        </div>
+        <div class="stat-val" id="statTeachers">—</div>
+        <div class="stat-title">Faculty Members</div>
+        <div class="stat-trend trend-up"><i class="ri-check-line"></i> Subject-mapped</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon icon-emerald">
+          <i class="ri-door-open-line"></i>
+        </div>
+        <div class="stat-val" id="statRooms">—</div>
+        <div class="stat-title">Lecture Rooms & Labs</div>
+        <div class="stat-trend trend-up"><i class="ri-building-line"></i> Capacity-checked</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon icon-amber">
+          <i class="ri-trophy-line"></i>
+        </div>
+        <div class="stat-val" id="statFitness">—</div>
+        <div class="stat-title">Best Fitness Score</div>
+        <div class="stat-trend trend-up"><i class="ri-sparkling-fill"></i> Target 10,000</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bento Grid Showcase -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-tag"><i class="ri-magic-line"></i> Architectural Highlights</div>
+      <h2 class="section-title">Engineered for Scalable Intelligence</h2>
+      <p class="section-desc">ChronoGen fuses genetic evolutionary operators with real-time browser streams for transparent and predictable scheduling.</p>
+    </div>
+
+    <div class="bento-grid">
+      <!-- Bento 1 -->
+      <div class="bento-card bento-span-2">
+        <span class="bento-badge">Algorithm Core</span>
+        <h3 class="bento-title">Autonomous Genetic Algorithm Engine</h3>
+        <p class="bento-text">
+          Custom crossover operators and dynamic mutation rate boosting prevent local optima entrapment. Chromosomes represent timetable slots evolved through elitist tournaments.
+        </p>
+        <div class="visual-dna">
+          <div class="dna-node" style="color: #a78bfa; animation-delay: 0s;"></div>
+          <div class="dna-node" style="color: #38bdf8; animation-delay: 0.3s;"></div>
+          <div class="dna-node" style="color: #34d399; animation-delay: 0.6s;"></div>
+          <div class="dna-node" style="color: #fbbf24; animation-delay: 0.9s;"></div>
+          <div class="dna-node" style="color: #f43f5e; animation-delay: 1.2s;"></div>
+          <div class="dna-node" style="color: #a78bfa; animation-delay: 1.5s;"></div>
+          <div class="dna-node" style="color: #38bdf8; animation-delay: 1.8s;"></div>
+        </div>
+      </div>
+
+      <!-- Bento 2 -->
+      <div class="bento-card">
+        <span class="bento-badge">Live Telemetry</span>
+        <h3 class="bento-title">Real-Time SSE Streaming</h3>
+        <p class="bento-text">
+          Watch generation fitness curves live via Server-Sent Events with stagnation markers.
+        </p>
+        <div class="visual-chart-preview">
+          <div class="bar-preview" style="height: 35%;"></div>
+          <div class="bar-preview" style="height: 48%;"></div>
+          <div class="bar-preview" style="height: 62%;"></div>
+          <div class="bar-preview" style="height: 75%;"></div>
+          <div class="bar-preview" style="height: 89%;"></div>
+          <div class="bar-preview" style="height: 98%;"></div>
+        </div>
+      </div>
+
+      <!-- Bento 3 -->
+      <div class="bento-card">
+        <span class="bento-badge">Operations</span>
+        <h3 class="bento-title">Smart Substitution Mode</h3>
+        <p class="bento-text">
+          Mark any teacher absent on any day. ChronoGen instantly audits subject qualifications and finds eligible free teachers.
+        </p>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <span class="f-badge" style="color: #6ee7b7;"><i class="ri-user-received-2-line"></i> Auto-Matching</span>
+          <span class="f-badge" style="color: #fca5a5;"><i class="ri-user-unfollow-line"></i> Absence Logs</span>
+        </div>
+      </div>
+
+      <!-- Bento 4 -->
+      <div class="bento-card bento-span-2">
+        <span class="bento-badge">Interoperability</span>
+        <h3 class="bento-title">Multi-Format Universal Export</h3>
+        <p class="bento-text">
+          One-click exports ready for administration. Generate CSV files for Excel, structured JSON for database integrations, or standalone interactive HTML schedules ready for printing.
+        </p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <a href="/output" class="btn btn-secondary"><i class="ri-file-excel-2-line"></i> CSV Export</a>
+          <a href="/output" class="btn btn-secondary"><i class="ri-code-line"></i> JSON Stream</a>
+          <a href="/output" class="btn btn-secondary"><i class="ri-printer-line"></i> Print HTML</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Constraint Matrix Section -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-tag"><i class="ri-lock-line"></i> Verification Matrix</div>
+      <h2 class="section-title">15 Mathematical Constraints</h2>
+      <p class="section-desc">Hard constraints guarantee zero scheduling conflicts. Soft constraints optimize institutional satisfaction and student ergonomics.</p>
+    </div>
+
+    <div class="constraint-tabs">
+      <button class="tab-btn active" id="tabHard" onclick="switchTab('hard')">
+        <i class="ri-error-warning-line"></i> Hard Constraints (7)
+      </button>
+      <button class="tab-btn" id="tabSoft" onclick="switchTab('soft')">
+        <i class="ri-equalizer-line"></i> Soft Constraints (8)
+      </button>
+    </div>
+
+    <!-- Hard Constraints Grid -->
+    <div class="constraint-grid" id="gridHard">
+      <div class="c-card">
+        <div class="c-top"><span class="c-tag c-hard">H1 · Teacher Clash</span><i class="ri-shield-fill" style="color: #f87171;"></i></div>
+        <div class="c-title">No Double Booking for Faculty</div>
+        <div class="c-desc">A teacher cannot be assigned to teach two different classes in the exact same day and time slot.</div>
+      </div>
+
+      <div class="c-card">
+        <div class="c-top"><span class="c-tag c-hard">H2 · Class Clash</span><i class="ri-shield-fill" style="color: #f87171;"></i></div>
+        <div class="c-title">Classroom Omnipresence Guard</div>
+        <div class="c-desc">A student cohort or class section cannot be scheduled for two lectures simultaneously.</div>
+      </div>
+
+      <div class="c-card">
+        <div class="c-top"><span class="c-tag c-hard">H3 · Room Clash</span><i class="ri-shield-fill" style="color: #f87171;"></i></div>
+        <div class="c-title">Room Occupancy Collision</div>
+        <div class="c-desc">A physical room or laboratory cannot host more than one session at any given period.</div>
+      </div>
+
+      <div class="c-card">
+        <div class="c-top"><span class="c-tag c-hard">H4 · Subject Duplication</span><i class="ri-shield-fill" style="color: #f87171;"></i></div>
+        <div class="c-title">Single Subject Per Period</div>
+        <div class="c-desc">A single class cannot have multiple subject entries assigned within the same timetable period.</div>
+      </div>
+
+      <div class="c-card">
+        <div class="c-top"><span class="c-tag c-hard">H5 · Qualification</span><i class="ri-shield-fill" style="color: #f87171;"></i></div>
+        <div class="c-title">Qualified Teacher Mapping</div>
+        <div class="c-desc">Instructors are only scheduled for subjects they are explicitly certified and mapped to instruct.</div>
+      </div>
+
+      <div class="c-card">
+        <div class="c-top"><span class="c-tag c-hard">H6 · Room Capacity</span><i class="ri-shield-fill" style="color: #f87171;"></i></div>
+        <div class="c-title">Safe Occupancy Limits</div>
+        <div class="c-desc">The allocated room capacity must be equal to or greater than the class student strength.</div>
+      </div>
+
+      <div class="c-card">
+        <div class="c-top"><span class="c-tag c-hard">HU · Availability</span><i class="ri-shield-fill" style="color: #f87171;"></i></div>
+        <div class="c-title">Teacher Leave & Unavailable Slots</div>
+        <div class="c-desc">Declared unavailable slots or administrative leaves are strictly respected with zero assignments.</div>
+      </div>
+    </div>
+
+    <!-- Soft Constraints Grid (Hidden by default) -->
+    <div class="constraint-grid" id="gridSoft" style="display: none;">
+      <div class="c-card">
+        <div class="c-top"><span class="c-tag c-soft">S1 · Weekly Load</span><i class="ri-line-chart-line" style="color: #fbbf24;"></i></div>
+        <div class="c-title">Syllabus Quota Distribution</div>
+        <div class="c-desc">Satisfies mandatory weekly lecture count per subject as prescribed by the academic curriculum.</div>
+      </div>
+
+      <div class="c-card">
+        <div class="c-top"><span class="c-tag c-soft">S2 · Burnout Limit</span><i class="ri-line-chart-line" style="color: #fbbf24;"></i></div>
+        <div class="c-title">Maximum Weekly Teacher Hours</div>
+        <div class="c-desc">Caps total teaching hours to prevent instructor fatigue and balance workload across departments.</div>
+      </div>
+
+      <div class="c-card">
+        <div class="c-top"><span class="c-tag c-soft">S3 · Back-to-Back Limit</span><i class="ri-line-chart-line" style="color: #fbbf24;"></i></div>
+        <div class="c-title">Consecutive Lecture Pacing</div>
+        <div class="c-desc">Restricts continuous lecturing hours without a break, improving student focus and lecture quality.</div>
+      </div>
+
+      <div class="c-card">
+        <div class="c-top"><span class="c-tag c-soft">S4 · Subject Spreading</span><i class="ri-line-chart-line" style="color: #fbbf24;"></i></div>
+        <div class="c-title">Daily Subject Diversity</div>
+        <div class="c-desc">Avoids repeating the exact same theory subject in a class schedule on the same calendar day.</div>
+      </div>
+
+      <div class="c-card">
+        <div class="c-top"><span class="c-tag c-soft">S5 · Class Compactness</span><i class="ri-line-chart-line" style="color: #fbbf24;"></i></div>
+        <div class="c-title">Eliminate Idle Student Gaps</div>
+        <div class="c-desc">Minimizes empty periods between classes so students do not have awkward idle waiting intervals.</div>
+      </div>
+
+      <div class="c-card">
+        <div class="c-top"><span class="c-tag c-soft">S6 · Teacher Windows</span><i class="ri-line-chart-line" style="color: #fbbf24;"></i></div>
+        <div class="c-title">Compact Faculty Schedules</div>
+        <div class="c-desc">Groups teacher lecture hours into tight blocks, freeing contiguous blocks for grading and research.</div>
+      </div>
+
+      <div class="c-card">
+        <div class="c-top"><span class="c-tag c-soft">S7 · Room Appropriateness</span><i class="ri-line-chart-line" style="color: #fbbf24;"></i></div>
+        <div class="c-title">Lab & Facility Type Alignment</div>
+        <div class="c-desc">Ensures practical lab sessions are explicitly assigned to designated laboratories, not standard lecture halls.</div>
+      </div>
+
+      <div class="c-card">
+        <div class="c-top"><span class="c-tag c-soft">S8 · Time Preferences</span><i class="ri-line-chart-line" style="color: #fbbf24;"></i></div>
+        <div class="c-title">Preferred Faculty Slots</div>
+        <div class="c-desc">Favors preferred morning or afternoon slots for senior educators where feasible.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Flow -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-tag"><i class="ri-route-line"></i> Seamless Workflow</div>
+      <h2 class="section-title">Three Steps to Perfection</h2>
+      <p class="section-desc">From raw institutional data to an actionable conflict-free schedule in under 30 seconds.</p>
+    </div>
+
+    <div class="steps-container">
+      <div class="step-card">
+        <div class="step-number">01</div>
+        <div class="step-icon-wrap" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa;">
+          <i class="ri-upload-cloud-2-line"></i>
+        </div>
+        <h3 class="step-h">Ingest Entity Data</h3>
+        <p class="step-t">
+          Enter teachers, rooms, subjects, and cohort sections via guided UI forms, upload CSV files, or instantly inject sample demo data.
+        </p>
+        <a href="/input" class="step-action">Configure Data <i class="ri-arrow-right-line"></i></a>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">02</div>
+        <div class="step-icon-wrap" style="background: rgba(6, 182, 212, 0.15); color: #38bdf8;">
+          <i class="ri-cpu-line"></i>
+        </div>
+        <h3 class="step-h">Simulate & Evolve</h3>
+        <p class="step-t">
+          Trigger the genetic algorithm. Configure population size, mutation rates, and elitism while monitoring live convergence via SSE.
+        </p>
+        <a href="/generate" class="step-action">Open Simulator <i class="ri-arrow-right-line"></i></a>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">03</div>
+        <div class="step-icon-wrap" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+          <i class="ri-calendar-check-line"></i>
+        </div>
+        <h3 class="step-h">Publish & Export</h3>
+        <p class="step-t">
+          Audit the generated schedules in Class, Teacher, or Room view. Handle daily absences or export as CSV, JSON, or printable HTML.
+        </p>
+        <a href="/output" class="step-action">View Schedules <i class="ri-arrow-right-line"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <div class="cta-banner">
+    <h2>Ready to Transform Your Scheduling?</h2>
+    <p>Generate thousands of permutations in seconds and deploy conflict-free institutional timetables with mathematical certainty.</p>
+    <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+      <a href="/input" class="btn btn-primary btn-lg">
+        <i class="ri-rocket-line"></i> Get Started Now
+      </a>
+      <a href="/generate" class="btn btn-secondary btn-lg">
+        <i class="ri-play-line"></i> Launch Engine Demo
+      </a>
     </div>
   </div>
-</nav>
 
-<!-- HERO -->
-<section id="hero">
-  <canvas id="heroCanvas"></canvas>
-  <div class="hero-content">
-    <div class="hero-badge">
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" style="width:22px;filter:drop-shadow(0 0 7px rgba(255,215,0,.65));" alt=""/>
-      <span class="badge-txt">Powered by Genetic Algorithm · Team Tech4ALL</span>
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png" style="width:22px;filter:drop-shadow(0 0 7px rgba(79,195,247,.65));" alt=""/>
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div style="display: flex; align-items: center; gap: 0.8rem;">
+        <div class="brand-icon" style="width: 30px; height: 30px; font-size: 1rem;">
+          <i class="ri-cpu-line"></i>
+        </div>
+        <span style="font-weight: 700; color: #fff;">ChronoGen</span>
+        <span class="footer-copy">· Evolutionary AI Timetable Engine</span>
+      </div>
+
+      <div class="footer-links">
+        <a href="/input">Input Data</a>
+        <a href="/generate">Generate</a>
+        <a href="/output">Timetable</a>
+        <a href="https://github.com/ujjwalchaudharyyy/timetable-generator" target="_blank" rel="noopener">
+          <i class="ri-github-fill"></i> GitHub
+        </a>
+      </div>
     </div>
-    <div class="hero-t1">Build Perfect</div>
-    <div class="hero-t2">TIMETABLES</div>
-    <div class="hero-t3">IN SECONDS</div>
-    <p class="hero-sub">ChronoGen uses a <strong>genetic algorithm</strong> with <b>15 constraints</b> to automatically generate conflict-free school timetables — zero scheduling headaches.</p>
-    <div class="chips">
-      <span class="chip c-fire">⚡ Fast</span>
-      <span class="chip c-water">🧬 Genetic AI</span>
-      <span class="chip c-psy">🔒 15 Constraints</span>
-      <span class="chip c-elec">📊 Real-time</span>
-      <span class="chip c-ghost">🎯 Conflict-Free</span>
-    </div>
-    <div class="hero-btns">
-      <a href="/input"    class="btn-main"><i class="ri-database-2-line"></i> Load Data</a>
-      <a href="/generate" class="btn-sec"><i class="ri-play-fill"></i> Run Algorithm</a>
-    </div>
-  </div>
-  <div class="scroll-hint">
-    <div class="s-dot"></div><div class="s-dot"></div><div class="s-dot"></div>
-  </div>
-</section>
+  </footer>
 
-<!-- STATS -->
-<div class="wrap reveal">
-  <div class="stats-grid">
-    <div class="sc sc-p"><div class="stat-n" style="color:#a78bfa;" id="statClasses">—</div><div class="stat-l">Classes</div><div class="stat-badge"><span class="chip c-ghost" style="font-size:.58rem;">Ghost</span></div></div>
-    <div class="sc sc-g"><div class="stat-n" style="color:#66BB6A;" id="statTeachers">—</div><div class="stat-l">Teachers</div><div class="stat-badge"><span class="chip c-water" style="font-size:.58rem;">Grass</span></div></div>
-    <div class="sc sc-b"><div class="stat-n" style="color:#4FC3F7;" id="statRooms">—</div><div class="stat-l">Rooms</div><div class="stat-badge"><span class="chip c-water" style="font-size:.58rem;">Water</span></div></div>
-    <div class="sc sc-y"><div class="stat-n" style="color:#FFD700;" id="statFitness">—</div><div class="stat-l">Fitness Score</div><div class="stat-badge"><span class="chip c-elec" style="font-size:.58rem;">★★★</span></div></div>
-  </div>
-</div>
+  <button id="scrollTopBtn" title="Back to top">
+    <i class="ri-arrow-up-line"></i>
+  </button>
 
-<!-- HOW IT WORKS -->
-<div class="wrap reveal" style="padding-top:0;">
-  <div class="sec-hd"><div class="glow-bar"></div><h2 class="sec-title">How It Works</h2><p class="sec-sub">Three simple steps to a perfect conflict-free timetable</p></div>
-  <div class="steps-grid">
-    <div class="stc stc1">
-      <div class="step-num" style="color:#8b5cf6;">01</div>
-      <div class="step-ic" style="background:rgba(139,92,246,.16);border:1px solid rgba(139,92,246,.32);"><i class="ri-database-2-line" style="color:#a78bfa;"></i></div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><div class="step-hd">Input Your Data</div><span class="chip c-ghost" style="padding:2px 8px;font-size:.58rem;">Step 1</span></div>
-      <p class="step-p">Add teachers, rooms, subjects & classes via forms or CSV. Or load demo data with one click.</p>
-      <a href="/input" class="step-a" style="color:#a78bfa;">GO TO INPUT <i class="ri-arrow-right-line"></i></a>
-    </div>
-    <div class="stc stc2">
-      <div class="step-num" style="color:#66BB6A;">02</div>
-      <div class="step-ic" style="background:rgba(102,187,106,.16);border:1px solid rgba(102,187,106,.32);"><i class="ri-flashlight-fill" style="color:#66BB6A;"></i></div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><div class="step-hd">Run the GA</div><span class="chip c-water" style="padding:2px 8px;font-size:.58rem;">Step 2</span></div>
-      <p class="step-p">The GA evolves 100+ timetables across hundreds of generations. Watch fitness climb live.</p>
-      <a href="/generate" class="step-a" style="color:#66BB6A;">GO TO GENERATE <i class="ri-arrow-right-line"></i></a>
-    </div>
-    <div class="stc stc3">
-      <div class="step-num" style="color:#4FC3F7;">03</div>
-      <div class="step-ic" style="background:rgba(79,195,247,.16);border:1px solid rgba(79,195,247,.32);"><i class="ri-calendar-check-line" style="color:#4FC3F7;"></i></div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><div class="step-hd">View &amp; Export</div><span class="chip c-fire" style="padding:2px 8px;font-size:.58rem;">Step 3</span></div>
-      <p class="step-p">See class, teacher & room views. Export as CSV, JSON, or a print-ready HTML file.</p>
-      <a href="/output" class="step-a" style="color:#4FC3F7;">GO TO TIMETABLE <i class="ri-arrow-right-line"></i></a>
-    </div>
-  </div>
-</div>
-
-<!-- POKEMON SHOWCASE -->
-<div class="wrap reveal" style="padding-top:0;">
-  <div class="pk-show">
-    <div class="pk-title">★ TEAM SPIRIT POKÉMON ★</div>
-    <div class="pk-row" id="pokeRow"></div>
-    <p style="color:#334155;font-size:.8rem;margin-top:16px;font-family:'Rajdhani',sans-serif;">Hover to awaken them!</p>
-  </div>
-</div>
-
-<!-- CONSTRAINTS -->
-<div class="wrap reveal" style="padding-top:0;">
-  <div class="sec-hd"><div class="glow-bar"></div><h2 class="sec-title">15 Constraints Enforced</h2><p class="sec-sub">Hard constraints cannot be broken · Soft constraints optimise quality</p></div>
-  <div class="con-grid">
-    <div class="con con-h">
-      <div class="con-head"><div class="con-dot" style="background:#FF3B3B;box-shadow:0 0 10px rgba(255,59,59,.75);"></div><span class="con-lbl" style="color:#FF3B3B;">Hard Constraints</span><span class="chip c-psy" style="padding:2px 8px;font-size:.6rem;margin-left:auto;">H1–HU</span></div>
-      <div class="con-row"><span class="con-tag" style="color:#FF3B3B;">H1</span><span class="con-txt">Teacher can't teach two classes simultaneously</span></div>
-      <div class="con-row"><span class="con-tag" style="color:#FF3B3B;">H2</span><span class="con-txt">Class can't be in two places at once</span></div>
-      <div class="con-row"><span class="con-tag" style="color:#FF3B3B;">H3</span><span class="con-txt">Room can't host two classes at the same time</span></div>
-      <div class="con-row"><span class="con-tag" style="color:#FF3B3B;">H4</span><span class="con-txt">Class can't have two subjects in same period</span></div>
-      <div class="con-row"><span class="con-tag" style="color:#FF3B3B;">H5</span><span class="con-txt">Teacher only teaches their qualified subjects</span></div>
-      <div class="con-row"><span class="con-tag" style="color:#FF3B3B;">H6</span><span class="con-txt">Room capacity must not be exceeded</span></div>
-      <div class="con-row"><span class="con-tag" style="color:#FF3B3B;">HU</span><span class="con-txt">Teacher unavailable periods respected</span></div>
-    </div>
-    <div class="con con-s">
-      <div class="con-head"><div class="con-dot" style="background:#FFD700;box-shadow:0 0 10px rgba(255,215,0,.75);"></div><span class="con-lbl" style="color:#FFD700;">Soft Constraints</span><span class="chip c-elec" style="padding:2px 8px;font-size:.6rem;margin-left:auto;">S1–S8</span></div>
-      <div class="con-row"><span class="con-tag" style="color:#FFD700;">S1</span><span class="con-txt">Min lectures/week per subject per class</span></div>
-      <div class="con-row"><span class="con-tag" style="color:#FFD700;">S2</span><span class="con-txt">Max weekly lectures per teacher</span></div>
-      <div class="con-row"><span class="con-tag" style="color:#FFD700;">S3</span><span class="con-txt">Limit back-to-back teaching hours</span></div>
-      <div class="con-row"><span class="con-tag" style="color:#FFD700;">S4</span><span class="con-txt">Same subject max once per day per class</span></div>
-      <div class="con-row"><span class="con-tag" style="color:#FFD700;">S5</span><span class="con-txt">Minimise gaps in class daily schedule</span></div>
-      <div class="con-row"><span class="con-tag" style="color:#FFD700;">S6</span><span class="con-txt">Minimise gaps in teacher daily schedule</span></div>
-      <div class="con-row"><span class="con-tag" style="color:#FFD700;">S7</span><span class="con-txt">Labs/gyms scheduled in correct room type</span></div>
-      <div class="con-row"><span class="con-tag" style="color:#FFD700;">S8</span><span class="con-txt">Morning-preference teachers get morning slots</span></div>
-    </div>
-  </div>
-</div>
-
-<!-- TEAM -->
-<div class="wrap reveal" style="padding-top:0;">
-  <div class="sec-hd"><div class="glow-bar"></div><h2 class="sec-title">Team Tech4ALL</h2><p class="sec-sub">Watch The Code 2026 · Graphic Era Hill University</p></div>
-  <div class="team-grid">
-    <div class="tc" style="border:1px solid rgba(139,92,246,.32);">
-      <div class="tc-ic" style="background:rgba(139,92,246,.18);border:2px solid rgba(139,92,246,.52);box-shadow:0 0 22px rgba(139,92,246,.32);"><i class="ri-code-s-slash-line" style="color:#a78bfa;"></i></div>
-      <div class="tc-name">GA Engine</div><div class="tc-sub">Genetic Algorithm<br>Constraints</div>
-      <div style="margin-top:10px;"><span class="chip c-ghost" style="font-size:.6rem;">Psychic</span></div>
-    </div>
-    <div class="tc" style="border:1px solid rgba(102,187,106,.32);">
-      <div class="tc-ic" style="background:rgba(102,187,106,.18);border:2px solid rgba(102,187,106,.52);box-shadow:0 0 22px rgba(102,187,106,.32);"><i class="ri-server-line" style="color:#66BB6A;"></i></div>
-      <div class="tc-name">Backend</div><div class="tc-sub">Node.js<br>Express</div>
-      <div style="margin-top:10px;"><span class="chip c-water" style="font-size:.6rem;">Grass</span></div>
-    </div>
-    <div class="tc" style="border:1px solid rgba(79,195,247,.32);">
-      <div class="tc-ic" style="background:rgba(79,195,247,.18);border:2px solid rgba(79,195,247,.52);box-shadow:0 0 22px rgba(79,195,247,.32);"><i class="ri-layout-line" style="color:#4FC3F7;"></i></div>
-      <div class="tc-name">Frontend</div><div class="tc-sub">HTML · Tailwind<br>Chart.js</div>
-      <div style="margin-top:10px;"><span class="chip c-water" style="font-size:.6rem;">Water</span></div>
-    </div>
-    <div class="tc" style="border:1px solid rgba(255,59,59,.32);">
-      <div class="tc-ic" style="background:rgba(255,59,59,.18);border:2px solid rgba(255,59,59,.52);box-shadow:0 0 22px rgba(255,59,59,.32);"><i class="ri-database-2-line" style="color:#FF3B3B;"></i></div>
-      <div class="tc-name">Database</div><div class="tc-sub">MySQL · Schema<br>Exports</div>
-      <div style="margin-top:10px;"><span class="chip c-fire" style="font-size:.6rem;">Fire</span></div>
-    </div>
-  </div>
-</div>
-
-<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="ri-arrow-up-line"></i></button>
-
-<!-- FOOTER -->
-<footer>
-  <div class="foot-logo">ChronoGen · Team-Tech4ALL · WTC 2026 · GEHU</div>
-  <div class="foot-tag">Visualizing algorithms in real-time</div>
-  <div class="foot-balls" id="footerBalls"></div>
-  <a href="https://github.com/WTC-final-round/final-round-tech4all" class="foot-gh"><i class="ri-github-fill"></i></a>
-  <div class="foot-copy">Built with ❤ by Team-Tech4ALL</div>
-</footer>
-
-<script>
-// ── CURSOR
-const cur=document.getElementById('cur'),trail=document.getElementById('cur-trail');
-let mx=0,my=0,tx=0,ty=0;
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
-(function animT(){tx+=(mx-tx)*.15;ty+=(my-ty)*.15;trail.style.left=tx+'px';trail.style.top=ty+'px';requestAnimationFrame(animT);})();
-document.addEventListener('mousedown',()=>cur.classList.add('click'));
-document.addEventListener('mouseup',()=>cur.classList.remove('click'));
-
-// ── SIMPLE BACKGROUND
-(function(){
-  const canvas=document.getElementById('heroCanvas');
-  if(!canvas) return;
-  const ctx=canvas.getContext('2d');
-  
-  function resize(){
-    canvas.width=canvas.clientWidth;
-    canvas.height=canvas.clientHeight;
-  }
-  resize();
-  window.addEventListener('resize',resize);
-  
-  // Simple gradient background
-  function draw(){
-    const grad=ctx.createLinearGradient(0,0,0,canvas.height);
-    grad.addColorStop(0,'#03030f');
-    grad.addColorStop(1,'#0a0a2e');
-    ctx.fillStyle=grad;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-    
-    // Optional: Add subtle animated glow effect
-    ctx.fillStyle='rgba(139,92,246,0.05)';
-    const time=Date.now()*0.0001;
-    for(let i=0;i<3;i++){
-      const x=canvas.width/2+Math.sin(time+i)*canvas.width*0.3;
-      const y=canvas.height/2+Math.cos(time+i)*canvas.height*0.3;
-      const radius=canvas.width*0.3+Math.sin(time*2+i)*canvas.width*0.1;
-      ctx.beginPath();
-      ctx.arc(x,y,radius,0,Math.PI*2);
-      ctx.fill();
-    }
-    
-    requestAnimationFrame(draw);
-  }
-  
-  draw();
-})();
-
-// ── POKEMON SHOWCASE
-const pokes=[{id:25,n:'Pikachu'},{id:6,n:'Charizard'},{id:9,n:'Blastoise'},{id:3,n:'Venusaur'},{id:149,n:'Dragonite'},{id:94,n:'Gengar'}];
-const pr=document.getElementById('pokeRow');
-pokes.forEach(p=>{
-  const d=document.createElement('div'); d.className='pk-item';
-  d.innerHTML=`<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${p.id}.png" alt="${p.n}"/><span>${p.n.toUpperCase()}</span>`;
-  pr.appendChild(d);
-});
-
-// ── FOOTER BALLS
-['poke-ball','great-ball','ultra-ball','master-ball','safari-ball','net-ball'].forEach(b=>{
-  const img=document.createElement('img');
-  img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${b}.png`;
-  img.title=b.replace('-',' ');
-  document.getElementById('footerBalls').appendChild(img);
-});
-
-// ── FLOATING POKEMON
-const fIds=[25,6,9,3,94,149,448,700,143,35,52,133];
-const fs=document.createElement('style');
-fs.textContent=`@keyframes fup{0%{bottom:-80px;opacity:0;transform:rotate(0) scale(.4);}5%{opacity:.5;}95%{opacity:.5;}100%{bottom:110vh;opacity:0;transform:rotate(360deg) scale(.4);}}`;
-document.head.appendChild(fs);
-function spawnF(){
-  const img=document.createElement('img');
-  const id=fIds[Math.floor(Math.random()*fIds.length)];
-  const dur=12+Math.random()*14;
-  img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
-  img.style.cssText=`position:fixed;pointer-events:none;z-index:5;left:${Math.random()*94}vw;width:${28+Math.random()*22}px;animation:fup ${dur}s linear forwards;filter:drop-shadow(0 0 9px rgba(255,215,0,.45));opacity:0;`;
-  document.body.appendChild(img);
-  setTimeout(()=>img.remove(),dur*1000);
-}
-setInterval(spawnF,2200); spawnF(); setTimeout(spawnF,600);
-
-// ── POKE TRANSITION
-const pData=[{id:25,n:'PIKACHU!'},{id:6,n:'CHARIZARD!'},{id:9,n:'BLASTOISE!'},{id:3,n:'VENUSAUR!'},{id:94,n:'GENGAR!'},{id:149,n:'DRAGONITE!'},{id:448,n:'LUCARIO!'},{id:700,n:'SYLVEON!'},{id:143,n:'SNORLAX!'},{id:249,n:'LUGIA!'},{id:250,n:'HO-OH!'}];
-document.addEventListener('click',function(e){
-  const lnk=e.target.closest('a');
-  if(!lnk) return;
-  const href=lnk.getAttribute('href');
-  if(!href||href.startsWith('#')||href.startsWith('http')||lnk.target==='_blank') return;
-  e.preventDefault();
-  const [layer,ball,mon,flash,nm]=['pokeLayer','pokeBall','pokeMon','pokeFlash','pokeName'].map(id=>document.getElementById(id));
-  const p=pData[Math.floor(Math.random()*pData.length)];
-  mon.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${p.id}.png`;
-  nm.textContent=p.n; layer.style.display='flex';
-  ball.style.transform='scale(0)'; mon.style.transform='scale(0) translateY(30px)'; flash.style.opacity='0'; nm.style.opacity='0';
-  setTimeout(()=>{ball.style.transform='scale(2) rotate(720deg)'; flash.style.opacity='.95';},50);
-  setTimeout(()=>{flash.style.opacity='0'; ball.style.transform='scale(0) rotate(960deg)'; mon.style.transform='scale(1.1) translateY(0)'; nm.style.opacity='1';},520);
-  setTimeout(()=>window.location.href=href,1400);
-});
-
-// ── SCROLL REVEAL
-const ro=new IntersectionObserver(entries=>{
-  entries.forEach((e,i)=>{if(e.isIntersecting){e.target.style.transitionDelay=(i*.06)+'s';e.target.classList.add('vis');ro.unobserve(e.target);}});
-},{threshold:.1});
-document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
-
-// ── SCROLL TOP
-const stBtn=document.getElementById('scrollTop');
-window.addEventListener('scroll',()=>stBtn.classList.toggle('vis',window.scrollY>300));
-
-// ── MOUSE TILT on cards
-document.querySelectorAll('.sc,.stc,.tc,.con').forEach(card=>{
-  card.addEventListener('mousemove',e=>{
-    const r=card.getBoundingClientRect();
-    const dx=(e.clientX-r.left-r.width/2)/(r.width/2);
-    const dy=(e.clientY-r.top-r.height/2)/(r.height/2);
-    card.style.transform=`perspective(700px) rotateX(${-dy*10}deg) rotateY(${dx*10}deg) translateZ(22px) scale(1.03)`;
-  });
-  card.addEventListener('mouseleave',()=>card.style.transform='');
-});
-
-// ── NAV ACTIVE
-document.querySelectorAll('.nav-link').forEach(l=>l.addEventListener('click',function(){document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('nav-active'));this.classList.add('nav-active');}));
-
-// ── STATS from localStorage
-try{['tt_classes','tt_teachers','tt_rooms','tt_fitness'].forEach((k,i)=>{const v=localStorage.getItem(k);if(v)document.getElementById(['statClasses','statTeachers','statRooms','statFitness'][i]).textContent=v;});}catch(e){}
-</script>
-<script src="/index.js"></script>
+  <script src="/index.js"></script>
 </body>
 </html>
