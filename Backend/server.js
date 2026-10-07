@@ -16,7 +16,11 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, '../Frontend')));
+const frontendDir = fs.existsSync(path.join(__dirname, '../Frontend'))
+  ? path.join(__dirname, '../Frontend')
+  : path.join(process.cwd(), 'Frontend');
+
+app.use(express.static(frontendDir));
 
 // Make sure the uploads folder exists before multer tries to write to it
 const uploadsDir = process.env.VERCEL
@@ -39,10 +43,10 @@ app.get('/api/health', (req, res) => {
 });
 
 // ── Page Routes ──────────────────────────────────────────────
-app.get('/',         (req, res) => res.sendFile(path.join(__dirname, '../Frontend/index.html')));
-app.get('/input',    (req, res) => res.sendFile(path.join(__dirname, '../Frontend/input.html')));
-app.get('/generate', (req, res) => res.sendFile(path.join(__dirname, '../Frontend/generate.html')));
-app.get('/output',   (req, res) => res.sendFile(path.join(__dirname, '../Frontend/output.html')));
+app.get('/',         (req, res) => res.sendFile(path.join(frontendDir, 'index.html')));
+app.get('/input',    (req, res) => res.sendFile(path.join(frontendDir, 'input.html')));
+app.get('/generate', (req, res) => res.sendFile(path.join(frontendDir, 'generate.html')));
+app.get('/output',   (req, res) => res.sendFile(path.join(frontendDir, 'output.html')));
 
 // ── Error Handler ────────────────────────────────────────────
 // Catches anything that slips past route-level try/catch and always returns JSON
