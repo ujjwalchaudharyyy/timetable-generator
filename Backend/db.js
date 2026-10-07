@@ -6,11 +6,13 @@ const mysql = require('mysql2/promise');
 
 const db = mysql.createPool({
   host:               process.env.DB_HOST || 'localhost',
+  port:               parseInt(process.env.DB_PORT || '3306', 10),
   user:               process.env.DB_USER || 'root',
   password:           process.env.DB_PASS || '',
   database:           process.env.DB_NAME || 'chronogen',
   waitForConnections: true,
   connectionLimit:    10,
+  ssl:                process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
 });
 
 // Safely add a column — skips if it already exists (MySQL error 1060).

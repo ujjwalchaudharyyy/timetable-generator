@@ -3,6 +3,7 @@ node_modules/
 
 # ── Environment ───────────────────────────────────────
 .env
+.vercel/
 
 # ── Temp CSV uploads ──────────────────────────────────
 uploads/

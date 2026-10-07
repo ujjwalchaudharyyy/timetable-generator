@@ -12,7 +12,15 @@ const path      = require('path');
 const fs        = require('fs');
 const db        = require('../db');
 
-const upload = multer({ dest: path.join(__dirname, '../../uploads/') });
+const os        = require('os');
+const uploadsDir = process.env.VERCEL
+  ? path.join(os.tmpdir(), 'uploads')
+  : path.join(__dirname, '../uploads');
+try {
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+} catch (_) {}
+
+const upload = multer({ dest: uploadsDir });
 
 // Delete a temp file after we've finished processing a CSV upload
 function deleteTempFile(filePath) {

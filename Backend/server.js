@@ -19,8 +19,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../Frontend')));
 
 // Make sure the uploads folder exists before multer tries to write to it
-const uploadsDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
+const uploadsDir = process.env.VERCEL
+  ? path.join(require('os').tmpdir(), 'uploads')
+  : path.join(__dirname, '../uploads');
+try {
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+} catch (err) {
+  console.warn('[Warning] Could not initialize uploads directory:', err.message);
+}
 
 // ── API Routes ───────────────────────────────────────────────
 app.use('/api/upload',   require('./routes/upload'));
@@ -46,6 +52,10 @@ app.use((err, req, res, next) => {
 });
 
 // ── Start ────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`\n  ⚡ ChronoGen running at http://localhost:${PORT}\n`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`\n  ⚡ ChronoGen running at http://localhost:${PORT}\n`);
+  });
+}
+
+module.exports = app;

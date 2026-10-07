@@ -55,6 +55,23 @@ Open **http://localhost:3000** in your browser. ✅
 
 ---
 
+## ⚡ Deploying to Vercel
+
+1. **Push your code to GitHub.**
+2. Go to [Vercel](https://vercel.com) and click **"Add New Project"**.
+3. Import your repository (`timetable-generator`).
+4. **Environment Variables**:
+   Under **Environment Variables** in Vercel project settings, configure your MySQL database credentials (e.g. from TiDB Cloud, Aiven, or Railway):
+   - `DB_HOST`: Your cloud database host
+   - `DB_PORT`: Database port (e.g., `3306` or `4000`)
+   - `DB_USER`: Database username
+   - `DB_PASS`: Database password
+   - `DB_NAME`: Database name (e.g., `chronogen`)
+   - `DB_SSL`: `true` (if your cloud provider requires SSL)
+5. Click **Deploy**. Vercel will build and deploy using `vercel.json` and `api/index.js`.
+
+---
+
 ## 🧭 How to Use:
 
 | Step | Page | What to do |
