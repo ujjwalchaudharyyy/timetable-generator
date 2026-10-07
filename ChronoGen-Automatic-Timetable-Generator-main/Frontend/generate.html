@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generate — ChronoGen</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+  <link rel="stylesheet" href="/output.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+</head>
+<body class="bg-[#070b14] text-gray-100 min-h-screen font-sans">
+
+  <!-- Starfield (injected by JS) -->
+  <div id="stars" class="pointer-events-none" aria-hidden="true"></div>
+
+  <!-- Navigation -->
+  <nav class="border-b border-white/5 bg-gray-950/70 backdrop-blur-xl sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-lg shadow-brand-500/30">
+          <i class="ri-time-line text-white text-sm"></i>
+        </div>
+        <span class="font-bold text-lg tracking-tight text-white">ChronoGen</span>
+      </div>
+      <div class="flex items-center gap-0.5">
+        <a href="/"        class="px-3.5 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all">Dashboard</a>
+        <a href="/input"   class="px-3.5 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all">Input Data</a>
+        <a href="/generate"class="px-3.5 py-2 rounded-lg text-sm font-semibold text-brand-300 bg-brand-500/15 border border-brand-500/20">Generate</a>
+        <a href="/output"  class="px-3.5 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all">Timetable</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-6xl mx-auto px-6 py-8">
+
+    <!-- Page Header -->
+    <div class="mb-7">
+      <h1 class="text-2xl font-bold text-white tracking-tight">Run Genetic Algorithm</h1>
+      <p class="text-gray-500 mt-0.5 text-sm">Configure parameters, click <strong class="text-gray-300">Start Evolution</strong>, and watch the fitness converge live.</p>
+    </div>
+
+    <div class="grid lg:grid-cols-[340px_1fr] gap-5">
+
+      <!-- ═══════════════════ LEFT PANEL ═══════════════════ -->
+      <div class="space-y-4">
+
+        <!-- Start / Stop -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <button id="startBtn" onclick="startGA()"
+            class="col-span-2 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-400 hover:to-brand-500 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl transition-all duration-200 text-base shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2.5 border border-brand-400/20">
+            <i class="ri-dna-line text-lg"></i> Start Evolution
+          </button>
+          <button id="stopBtn" onclick="stopGA()" disabled
+            class="col-span-2 bg-gray-800/60 text-gray-500 cursor-not-allowed font-medium py-2.5 rounded-xl transition-all border border-gray-700/50 text-sm flex items-center justify-center gap-2">
+            <i class="ri-stop-circle-line"></i> Stop
+          </button>
+        </div>
+
+        <!-- GA Parameters (always visible) -->
+        <div class="bg-gray-900/60 border border-white/6 rounded-2xl overflow-hidden">
+          <div class="px-5 py-3.5 border-b border-white/5 flex items-center gap-2">
+            <i class="ri-equalizer-2-line text-brand-400 text-base"></i>
+            <span class="text-sm font-semibold text-gray-200">GA Parameters</span>
+          </div>
+          <div class="px-5 pb-5 pt-4 space-y-4">
+
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-medium text-gray-400">Population Size <span class="text-gray-600">(10–300)</span></label>
+                <span class="text-xs text-brand-400 font-mono" id="lbl-pop">100</span>
+              </div>
+              <input id="cfg-pop" type="number" value="100" min="10" max="300"
+                oninput="document.getElementById('lbl-pop').textContent=this.value"
+                class="w-full bg-gray-800/80 border border-gray-700/60 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all"/>
+              <p class="text-gray-600 text-xs mt-1">More = better quality, slower speed</p>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-medium text-gray-400">Max Generations <span class="text-gray-600">(50–1000)</span></label>
+                <span class="text-xs text-brand-400 font-mono" id="lbl-gen">300</span>
+              </div>
+              <input id="cfg-gen" type="number" value="300" min="50" max="1000"
+                oninput="document.getElementById('lbl-gen').textContent=this.value"
+                class="w-full bg-gray-800/80 border border-gray-700/60 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all"/>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-gray-400 mb-1.5">Crossover Rate <span class="text-gray-600">(0.5–0.99)</span></label>
+                <input id="cfg-cross" type="number" value="0.85" min="0.5" max="0.99" step="0.05"
+                  class="w-full bg-gray-800/80 border border-gray-700/60 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all"/>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-400 mb-1.5">Mutation Rate <span class="text-gray-600">(0.001–0.2)</span></label>
+                <input id="cfg-mut" type="number" value="0.02" min="0.001" max="0.2" step="0.005"
+                  class="w-full bg-gray-800/80 border border-gray-700/60 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all"/>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-gray-400 mb-1.5">Tournament Size</label>
+                <input id="cfg-tour" type="number" value="5" min="2" max="20"
+                  class="w-full bg-gray-800/80 border border-gray-700/60 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all"/>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-400 mb-1.5">Elitism Count</label>
+                <input id="cfg-elite" type="number" value="2" min="1" max="10"
+                  class="w-full bg-gray-800/80 border border-gray-700/60 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all"/>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-gray-400 mb-1.5">Random Seed <span class="text-gray-600">(same seed = same result)</span></label>
+              <input id="cfg-seed" type="number" value="42"
+                class="w-full bg-gray-800/80 border border-gray-700/60 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- What GA optimises -->
+        <div class="bg-gray-900/40 border border-white/5 rounded-2xl p-4">
+          <p class="text-xs font-semibold text-gray-300 mb-3 flex items-center gap-1.5">
+            <i class="ri-shield-star-line text-brand-400"></i> What the GA optimises for
+          </p>
+          <div class="space-y-1.5 text-xs text-gray-500">
+            <div class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-[9px]">✓</span>No teacher double-bookings</div>
+            <div class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-[9px]">✓</span>No room conflicts</div>
+            <div class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-[9px]">✓</span>All required lectures scheduled</div>
+            <div class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-[9px]">✓</span>Compact morning schedules</div>
+            <div class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-[9px]">✓</span>Correct room types (lab, gym…)</div>
+          </div>
+        </div>
+
+      </div>
+      <!-- ═══════════════ END LEFT PANEL ═══════════════════ -->
+
+
+      <!-- ═══════════════════ RIGHT PANEL ══════════════════ -->
+      <div class="space-y-4">
+
+        <!-- Status Bar -->
+        <div id="statusBar" class="bg-gray-900/60 border border-white/6 rounded-xl px-4 py-3 flex items-center gap-3 transition-all duration-500">
+          <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-gray-600 flex-shrink-0"></div>
+          <span id="statusText" class="text-gray-500 text-sm">Ready to evolve. Click Start Evolution.</span>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="bg-gray-900/60 border border-white/6 rounded-xl px-5 py-4">
+          <div class="flex items-center justify-between mb-2 text-xs">
+            <span class="text-gray-500 font-medium">Progress</span>
+            <span id="progressPct" class="text-gray-400 font-mono tabular-nums">0%</span>
+          </div>
+          <div class="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden">
+            <div id="progressBar" class="progress-bar-animated h-full rounded-full transition-all duration-500" style="width:0%"></div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-600 mt-1.5">
+            <span id="genLabel">Generation 0</span>
+            <span id="timeLabel"></span>
+          </div>
+        </div>
+
+        <!-- 3 Metric Cards -->
+        <div class="grid grid-cols-3 gap-3">
+          <div id="cardBest" class="bg-gray-900/60 border border-white/6 rounded-xl p-4 text-center transition-all duration-500">
+            <div class="text-2xl font-bold text-brand-400 metric-num tabular-nums" id="metBest">—</div>
+            <div class="text-gray-600 text-xs mt-1">Best Fitness (All-Time)</div>
+          </div>
+          <div class="bg-gray-900/60 border border-white/6 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-emerald-400 metric-num tabular-nums" id="metMean">—</div>
+            <div class="text-gray-600 text-xs mt-1">Mean Fitness</div>
+          </div>
+          <div id="cardValid" class="bg-gray-900/60 border border-white/6 rounded-xl p-4 text-center transition-all duration-500">
+            <div class="text-2xl font-bold text-sky-400 metric-num" id="metValid">—</div>
+            <div class="text-gray-600 text-xs mt-1">Valid</div>
+          </div>
+        </div>
+
+        <!-- Fitness Convergence Chart -->
+        <div class="bg-gray-900/60 border border-white/6 rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="font-semibold text-white text-sm">Fitness Convergence Chart</h2>
+            <button id="pngBtn" onclick="saveChartPNG()" disabled
+              class="text-xs text-gray-500 flex items-center gap-1.5 hover:text-gray-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed border border-gray-700/50 rounded-lg px-2.5 py-1">
+              <i class="ri-image-line text-sm"></i> Save PNG
+            </button>
+          </div>
+
+          <!-- Legend -->
+          <div class="flex flex-wrap gap-4 mb-4 text-xs text-gray-500">
+            <span class="flex items-center gap-1.5">
+              <span class="w-4 h-0.5 bg-violet-400 inline-block rounded" style="display:inline-block;width:16px;height:2px;background:#a78bfa;border-radius:2px"></span>
+              All-Time Best
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span style="display:inline-block;width:16px;height:2px;border-top:2px dashed #60a5fa"></span>
+              Gen Best
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span style="display:inline-block;width:16px;height:2px;border-top:2px dashed #34d399"></span>
+              Mean
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span style="display:inline-block;width:16px;height:2px;background:#374151;border-radius:2px"></span>
+              Worst
+            </span>
+          </div>
+
+          <!-- Chart container — fixed height so it always renders -->
+          <div style="position:relative;height:280px;width:100%">
+            <canvas id="fitChart" class="chart-canvas"></canvas>
+          </div>
+
+          <!-- Annotations below chart -->
+          <div class="mt-3 space-y-1.5">
+            <p id="firstValidNote" class="text-xs text-emerald-400 hidden flex items-center gap-1.5 fade-in">
+              <i class="ri-checkbox-circle-fill"></i>
+              <span id="firstValidText"></span>
+            </p>
+            <p id="stagnationBadge" class="text-xs text-amber-400 hidden flex items-center gap-1.5">
+              <i class="ri-flashlight-line"></i>
+              <span id="stagnationText"></span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Violation Report (shown after completion) -->
+        <div id="violationPanel" class="bg-gray-900/60 border border-white/6 rounded-2xl p-5 hidden fade-in">
+          <h2 class="font-semibold text-white text-sm mb-4 flex items-center gap-2">
+            <i class="ri-shield-check-line text-emerald-400"></i>
+            Constraint Violation Report
+          </h2>
+          <div id="violationGrid" class="grid grid-cols-4 sm:grid-cols-8 gap-2 mb-5"></div>
+          <div class="pt-4 border-t border-white/5 flex gap-3">
+            <a href="/output"
+              class="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-600 active:scale-[0.97] text-white font-semibold px-5 py-2.5 rounded-xl transition-all text-sm shadow-lg shadow-brand-500/25">
+              <i class="ri-calendar3-line"></i> View Timetable
+            </a>
+          </div>
+        </div>
+
+      </div>
+      <!-- ═══════════════ END RIGHT PANEL ══════════════════ -->
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/5 bg-black/30 backdrop-blur-md py-7 text-center text-sm mt-10">
+    <p class="text-gray-300 font-semibold tracking-wide">ChronoGen · Team-Tech4ALL · Watch The Code 2026 · GEHU</p>
+    <p class="mt-1.5 text-gray-600 italic text-xs">Visualizing algorithms in real-time</p>
+    <div class="w-10 h-px bg-emerald-400 mx-auto my-4 opacity-50"></div>
+    <div class="flex justify-center">
+      <a href="https://github.com/WTC-Group-2/wtc-round-2-group-2-tech4all#"
+         class="group p-2.5 rounded-full border border-white/8 hover:border-emerald-400 transition-all duration-300">
+        <i class="ri-github-fill text-lg text-gray-400 group-hover:text-emerald-400 transition"></i>
+      </a>
+    </div>
+    <p class="mt-3 text-gray-700 text-xs">Built with ❤️ by Team-Tech4ALL</p>
+  </footer>
+
+  <script src="generate.js"></script>
+  <script>
+    // Inject starfield
+    (function() {
+      const container = document.getElementById('stars');
+      for (let i = 0; i < 80; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        const size = Math.random() * 2 + 0.5;
+        s.style.cssText = `
+          width:${size}px; height:${size}px;
+          left:${Math.random()*100}vw; top:${Math.random()*100}vh;
+          --dur:${(Math.random()*4+2).toFixed(1)}s;
+          --op:${(Math.random()*0.4+0.1).toFixed(2)};
+          animation-delay:${(Math.random()*5).toFixed(1)}s;
+        `;
+        container.appendChild(s);
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input Data — ChronoGen</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+  <link rel="stylesheet" href="/output.css" />
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen font-sans">
+
+  <div id="snow-container" class="fixed inset-0 pointer-events-none z-40 overflow-hidden"></div>
+
+  <!-- Nav -->
+  <nav class="border-b border-gray-800 bg-gray-950/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
+          <i class="ri-time-line text-white text-sm"></i>
+        </div>
+        <span class="font-bold text-lg tracking-tight">ChronoGen</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <a href="/"        class="px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-colors">Dashboard</a>
+        <a href="/input"   class="px-3 py-2 rounded-lg text-sm font-medium text-brand-400 bg-brand-500/10">Input Data</a>
+        <a href="/generate"class="px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-colors">Generate</a>
+        <a href="/output"  class="px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-colors">Timetable</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-white">Input Data</h1>
+        <p class="text-gray-500 mt-1">Add teachers, rooms, subjects, and classes. Or click Load Demo Data to get started instantly.</p>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="loadDemo()"
+          class="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors shadow-lg shadow-brand-500/25">
+          <i class="ri-magic-line"></i> Load Demo Data
+        </button>
+        <button onclick="clearAll()"
+          class="inline-flex items-center gap-2 bg-gray-800 hover:bg-red-900/40 text-gray-300 hover:text-red-300 font-medium px-5 py-2.5 rounded-xl transition-colors border border-gray-700 hover:border-red-700">
+          <i class="ri-delete-bin-line"></i> Clear All
+        </button>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="hidden fixed top-6 right-6 z-50 flex items-center gap-3 bg-gray-900 border border-gray-700 rounded-xl px-5 py-3 shadow-2xl text-sm font-medium">
+      <i id="toastIcon" class="text-lg"></i>
+      <span id="toastMsg"></span>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-1 bg-gray-900 p-1 rounded-xl border border-gray-800 mb-8 overflow-x-auto">
+      <button onclick="switchTab('institution')" id="tab-institution" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors bg-gray-800 text-white">
+        <i class="ri-building-line"></i> Institution
+      </button>
+      <button onclick="switchTab('teachers')" id="tab-teachers" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors text-gray-400 hover:text-gray-200">
+        <i class="ri-user-line"></i> Teachers
+      </button>
+      <button onclick="switchTab('rooms')" id="tab-rooms" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors text-gray-400 hover:text-gray-200">
+        <i class="ri-home-office-line"></i> Rooms
+      </button>
+      <button onclick="switchTab('subjects')" id="tab-subjects" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors text-gray-400 hover:text-gray-200">
+        <i class="ri-book-open-line"></i> Subjects
+      </button>
+      <button onclick="switchTab('classes')" id="tab-classes" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors text-gray-400 hover:text-gray-200">
+        <i class="ri-group-line"></i> Classes
+      </button>
+      <button onclick="switchTab('curriculum')" id="tab-curriculum" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors text-gray-400 hover:text-gray-200">
+        <i class="ri-calendar-todo-line"></i> Curriculum
+      </button>
+      <button onclick="switchTab('review')" id="tab-review" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors text-gray-400 hover:text-gray-200">
+        <i class="ri-eye-line"></i> Review
+      </button>
+    </div>
+
+    <!-- ═══ INSTITUTION TAB ═════════════════════════════════════ -->
+    <div id="pane-institution" class="tab-pane">
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 max-w-2xl">
+        <h2 class="font-semibold text-white mb-1">Institution Settings</h2>
+        <p class="text-gray-500 text-sm mb-6">Configure your school week, period timing, and break schedule.</p>
+        <div class="space-y-5">
+
+          <!-- Name -->
+          <div>
+            <label class="lbl">Institution Name</label>
+            <input id="inst-name" type="text" placeholder="e.g. Graphic Era Hill University" class="field" />
+          </div>
+
+          <!-- Days + Periods -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="lbl">Days per Week</label>
+              <input id="inst-days" type="number" min="1" max="7" value="5" class="field" />
+            </div>
+            <div>
+              <label class="lbl">Periods per Day</label>
+              <input id="inst-periods" type="number" min="1" max="12" value="8" class="field" />
+            </div>
+          </div>
+
+          <!-- Period timing -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="lbl">Day Start Time</label>
+              <input id="inst-start" type="time" value="09:00" class="field" />
+              <p class="text-xs text-gray-600 mt-1">When Period 1 begins</p>
+            </div>
+            <div>
+              <label class="lbl">Period Duration (minutes)</label>
+              <input id="inst-duration" type="number" min="20" max="120" value="45" class="field" />
+            </div>
+          </div>
+
+          <!-- Short break -->
+          <div class="bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
+            <p class="text-sm font-medium text-gray-300 mb-3">
+              <i class="ri-cup-line text-amber-400 mr-1"></i> Short Break
+            </p>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="lbl">Break After Period #</label>
+                <input id="inst-break-after" type="number" min="0" max="12" value="4" class="field" />
+                <p class="text-xs text-gray-600 mt-1">0 = no break</p>
+              </div>
+              <div>
+                <label class="lbl">Break Duration (minutes)</label>
+                <input id="inst-break-dur" type="number" min="5" max="60" value="15" class="field" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Lunch break -->
+          <div class="bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
+            <p class="text-sm font-medium text-gray-300 mb-3">
+              <i class="ri-restaurant-line text-emerald-400 mr-1"></i> Lunch Break
+            </p>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="lbl">Lunch After Period #</label>
+                <input id="inst-lunch-after" type="number" min="0" max="12" value="6" class="field" />
+                <p class="text-xs text-gray-600 mt-1">0 = no lunch break</p>
+              </div>
+              <div>
+                <label class="lbl">Lunch Duration (minutes)</label>
+                <input id="inst-lunch-dur" type="number" min="15" max="120" value="30" class="field" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Period preview -->
+          <div>
+            <label class="lbl">Period Time Preview</label>
+            <div id="periodPreview" class="grid grid-cols-4 sm:grid-cols-6 gap-2 mt-1"></div>
+          </div>
+
+          <button onclick="saveInstitution()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-semibold py-2.5 rounded-xl transition-colors">
+            Save Settings
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TEACHERS TAB ════════════════════════════════════════ -->
+    <div id="pane-teachers" class="tab-pane hidden">
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+          <h2 class="font-semibold text-white mb-1">Add Teacher</h2>
+          <p class="text-gray-500 text-sm mb-5">Fill in manually or upload a CSV file.</p>
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="lbl">Teacher ID</label>
+                <input id="t-id" placeholder="e.g. T01" class="field" />
+              </div>
+              <div>
+                <label class="lbl">Full Name</label>
+                <input id="t-name" placeholder="e.g. Dr. R.K. Sharma" class="field" />
+              </div>
+              <div>
+                <label class="lbl">Max Lectures/Week</label>
+                <input id="t-max" type="number" value="20" min="1" max="40" class="field" />
+              </div>
+              <div>
+                <label class="lbl">Max Consecutive</label>
+                <input id="t-consec" type="number" value="3" min="1" max="6" class="field" />
+              </div>
+            </div>
+            <div>
+              <label class="lbl">Subject IDs (comma-separated)</label>
+              <input id="t-subjects" placeholder="e.g. MATH,DS" class="field" />
+            </div>
+            <div class="flex items-center gap-3">
+              <input id="t-morning" type="checkbox" class="w-4 h-4 rounded accent-brand-500" />
+              <label for="t-morning" class="text-sm text-gray-300">Prefers morning slots</label>
+            </div>
+            <button onclick="addTeacher()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-semibold py-2.5 rounded-xl transition-colors">
+              <i class="ri-add-line mr-1"></i> Add Teacher
+            </button>
+          </div>
+          <div class="mt-5 pt-5 border-t border-gray-800">
+            <p class="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wide">Or upload CSV</p>
+            <p class="text-xs text-gray-600 mb-3">Columns: id, name, max_lectures_per_week, max_consecutive, prefers_morning, subjects</p>
+            <input type="file" id="t-csv" accept=".csv" class="text-sm text-gray-400 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-brand-500/20 file:text-brand-400 hover:file:bg-brand-500/30 w-full" />
+            <button onclick="uploadCSV('teachers','t-csv')" class="mt-2 w-full bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2 rounded-xl transition-colors border border-gray-700 text-sm">Upload CSV</button>
+          </div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+          <h2 class="font-semibold text-white mb-4">Current Teachers <span id="t-count" class="text-gray-500 text-sm font-normal"></span></h2>
+          <div id="t-list" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
+          <p id="t-empty" class="text-gray-600 text-sm">No teachers yet. Add one or load demo data.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ROOMS TAB ══════════════════════════════════════════ -->
+    <div id="pane-rooms" class="tab-pane hidden">
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+          <h2 class="font-semibold text-white mb-1">Add Room</h2>
+          <p class="text-gray-500 text-sm mb-5">Fill in manually or upload a CSV file.</p>
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="lbl">Room ID</label>
+                <input id="r-id" placeholder="e.g. R101" class="field" />
+              </div>
+              <div>
+                <label class="lbl">Room Name</label>
+                <input id="r-name" placeholder="e.g. Classroom 101" class="field" />
+              </div>
+              <div>
+                <label class="lbl">Capacity</label>
+                <input id="r-cap" type="number" value="40" min="1" class="field" />
+              </div>
+              <div>
+                <label class="lbl">Room Type</label>
+                <select id="r-type" class="field">
+                  <option value="classroom">Classroom</option>
+                  <option value="lab">Lab</option>
+                  <option value="lecture_hall">Lecture Hall</option>
+                  <option value="gym">Gym</option>
+                  <option value="seminar_room">Seminar Room</option>
+                </select>
+              </div>
+            </div>
+            <button onclick="addRoom()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-semibold py-2.5 rounded-xl transition-colors">
+              <i class="ri-add-line mr-1"></i> Add Room
+            </button>
+          </div>
+          <div class="mt-5 pt-5 border-t border-gray-800">
+            <p class="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wide">Or upload CSV</p>
+            <p class="text-xs text-gray-600 mb-3">Columns: id, name, capacity, type</p>
+            <input type="file" id="r-csv" accept=".csv" class="text-sm text-gray-400 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-brand-500/20 file:text-brand-400 hover:file:bg-brand-500/30 w-full" />
+            <button onclick="uploadCSV('rooms','r-csv')" class="mt-2 w-full bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2 rounded-xl transition-colors border border-gray-700 text-sm">Upload CSV</button>
+          </div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+          <h2 class="font-semibold text-white mb-4">Current Rooms <span id="r-count" class="text-gray-500 text-sm font-normal"></span></h2>
+          <div id="r-list" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
+          <p id="r-empty" class="text-gray-600 text-sm">No rooms yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SUBJECTS TAB ═══════════════════════════════════════ -->
+    <div id="pane-subjects" class="tab-pane hidden">
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+          <h2 class="font-semibold text-white mb-1">Add Subject</h2>
+          <p class="text-gray-500 text-sm mb-5">Fill in manually or upload a CSV file.</p>
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="lbl">Subject ID</label>
+                <input id="s-id" placeholder="e.g. MATH" class="field" />
+              </div>
+              <div>
+                <label class="lbl">Subject Name</label>
+                <input id="s-name" placeholder="e.g. Mathematics" class="field" />
+              </div>
+              <div>
+                <label class="lbl">Min Lectures / Week</label>
+                <input id="s-min" type="number" value="3" min="1" max="10" class="field" />
+              </div>
+              <div>
+                <label class="lbl">Requires Room Type</label>
+                <select id="s-room" class="field">
+                  <option value="classroom">Classroom</option>
+                  <option value="lab">Lab</option>
+                  <option value="lecture_hall">Lecture Hall</option>
+                  <option value="gym">Gym</option>
+                  <option value="seminar_room">Seminar Room</option>
+                </select>
+              </div>
+            </div>
+            <button onclick="addSubject()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-semibold py-2.5 rounded-xl transition-colors">
+              <i class="ri-add-line mr-1"></i> Add Subject
+            </button>
+          </div>
+          <div class="mt-5 pt-5 border-t border-gray-800">
+            <p class="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wide">Or upload CSV</p>
+            <p class="text-xs text-gray-600 mb-3">Columns: id, name, requires_room_type, min_lectures_per_week</p>
+            <input type="file" id="s-csv" accept=".csv" class="text-sm text-gray-400 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-brand-500/20 file:text-brand-400 hover:file:bg-brand-500/30 w-full" />
+            <button onclick="uploadCSV('subjects','s-csv')" class="mt-2 w-full bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2 rounded-xl transition-colors border border-gray-700 text-sm">Upload CSV</button>
+          </div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+          <h2 class="font-semibold text-white mb-4">Current Subjects <span id="s-count" class="text-gray-500 text-sm font-normal"></span></h2>
+          <div id="s-list" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
+          <p id="s-empty" class="text-gray-600 text-sm">No subjects yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ CLASSES TAB ════════════════════════════════════════ -->
+    <div id="pane-classes" class="tab-pane hidden">
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+          <h2 class="font-semibold text-white mb-1">Add Class</h2>
+          <p class="text-gray-500 text-sm mb-5">Fill in manually or upload a CSV file.</p>
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="lbl">Class ID</label>
+                <input id="c-id" placeholder="e.g. CSE_A1" class="field" />
+              </div>
+              <div>
+                <label class="lbl">Class Name</label>
+                <input id="c-name" placeholder="e.g. CSE Sem-1 A" class="field" />
+              </div>
+              <div>
+                <label class="lbl">Student Count</label>
+                <input id="c-count" type="number" value="40" min="1" class="field" />
+              </div>
+            </div>
+            <button onclick="addClass()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-semibold py-2.5 rounded-xl transition-colors">
+              <i class="ri-add-line mr-1"></i> Add Class
+            </button>
+          </div>
+          <div class="mt-5 pt-5 border-t border-gray-800">
+            <p class="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wide">Or upload CSV</p>
+            <p class="text-xs text-gray-600 mb-3">Columns: id, name, student_count</p>
+            <input type="file" id="c-csv" accept=".csv" class="text-sm text-gray-400 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-brand-500/20 file:text-brand-400 hover:file:bg-brand-500/30 w-full" />
+            <button onclick="uploadCSV('classes','c-csv')" class="mt-2 w-full bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2 rounded-xl transition-colors border border-gray-700 text-sm">Upload CSV</button>
+          </div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+          <h2 class="font-semibold text-white mb-4">Current Classes <span id="c-count-label" class="text-gray-500 text-sm font-normal"></span></h2>
+          <div id="c-list" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
+          <p id="c-empty" class="text-gray-600 text-sm">No classes yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ CURRICULUM TAB ═════════════════════════════════════ -->
+    <div id="pane-curriculum" class="tab-pane hidden">
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+          <h2 class="font-semibold text-white mb-1">Add Curriculum Entry</h2>
+          <p class="text-gray-500 text-sm mb-5">Link a class to a subject and teacher.</p>
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="lbl">Class ID</label>
+                <input id="cur-class" placeholder="e.g. CSE_A1" class="field" />
+              </div>
+              <div>
+                <label class="lbl">Subject ID</label>
+                <input id="cur-subject" placeholder="e.g. MATH" class="field" />
+              </div>
+              <div>
+                <label class="lbl">Teacher ID</label>
+                <input id="cur-teacher" placeholder="e.g. T01" class="field" />
+              </div>
+              <div>
+                <label class="lbl">Lectures / Week</label>
+                <input id="cur-min" type="number" value="3" min="1" max="10" class="field" />
+              </div>
+            </div>
+            <button onclick="addCurriculum()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-semibold py-2.5 rounded-xl transition-colors">
+              <i class="ri-add-line mr-1"></i> Add Entry
+            </button>
+          </div>
+          <div class="mt-5 pt-5 border-t border-gray-800">
+            <p class="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wide">Or upload CSV</p>
+            <p class="text-xs text-gray-600 mb-3">Columns: class_id, subject_id, teacher_id, min_per_week</p>
+            <input type="file" id="cur-csv" accept=".csv" class="text-sm text-gray-400 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-brand-500/20 file:text-brand-400 hover:file:bg-brand-500/30 w-full" />
+            <button onclick="uploadCSV('curriculum','cur-csv')" class="mt-2 w-full bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2 rounded-xl transition-colors border border-gray-700 text-sm">Upload CSV</button>
+          </div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+          <h2 class="font-semibold text-white mb-4">Curriculum Entries <span id="cur-count" class="text-gray-500 text-sm font-normal"></span></h2>
+          <div id="cur-list" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
+          <p id="cur-empty" class="text-gray-600 text-sm">No entries yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ REVIEW TAB ═════════════════════════════════════════ -->
+    <div id="pane-review" class="tab-pane hidden">
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-semibold text-white">Data Summary</h2>
+          <button onclick="loadReview()" class="text-sm text-brand-400 hover:text-brand-300 flex items-center gap-1">
+            <i class="ri-refresh-line"></i> Refresh
+          </button>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="bg-gray-800 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-brand-400" id="rev-teachers">—</div>
+            <div class="text-gray-500 text-xs mt-1">Teachers</div>
+          </div>
+          <div class="bg-gray-800 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-emerald-400" id="rev-rooms">—</div>
+            <div class="text-gray-500 text-xs mt-1">Rooms</div>
+          </div>
+          <div class="bg-gray-800 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-sky-400" id="rev-subjects">—</div>
+            <div class="text-gray-500 text-xs mt-1">Subjects</div>
+          </div>
+          <div class="bg-gray-800 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-amber-400" id="rev-classes">—</div>
+            <div class="text-gray-500 text-xs mt-1">Classes</div>
+          </div>
+        </div>
+        <div id="rev-details" class="text-gray-500 text-sm">Click Refresh to load details.</div>
+        <div class="mt-6 pt-6 border-t border-gray-800">
+          <a href="/generate" class="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors">
+            <i class="ri-play-line"></i> Looks good — Go Generate!
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 bg-black/30 py-8 text-center text-sm mt-12">
+    <p class="text-gray-300 font-medium tracking-wide">ChronoGen · Team-Tech4ALL · Watch The Code 2026 · GEHU</p>
+    <p class="mt-2 text-gray-500 italic">Visualizing algorithms in real-time</p>
+    <div class="w-16 h-[1px] bg-emerald-400 mx-auto my-4 opacity-60"></div>
+    <p class="mt-4 text-gray-600">Built with ❤️ by Team-Tech4ALL</p>
+  </footer>
+
+  <script src="input.js"></script>
+  <script>
+    // Snow
+    const snowCont = document.getElementById("snow-container");
+    function makeSnow() {
+      const s = document.createElement("div");
+      s.className = "snowflake";
+      const sz = Math.random() * 4 + 2;
+      s.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*window.innerWidth}px;animation-duration:${Math.random()*5+5}s;opacity:${Math.random()}`;
+      snowCont.appendChild(s);
+      setTimeout(() => s.remove(), parseFloat(s.style.animationDuration) * 1000);
+    }
+    setInterval(makeSnow, 120);
+
+    // Period preview — shows actual time slots based on institution settings
+    function updatePeriodPreview() {
+      const startTime = document.getElementById('inst-start')?.value || '09:00';
+      const duration  = parseInt(document.getElementById('inst-duration')?.value) || 45;
+      const periods   = parseInt(document.getElementById('inst-periods')?.value)  || 8;
+      const breakAfter= parseInt(document.getElementById('inst-break-after')?.value) || 0;
+      const breakDur  = parseInt(document.getElementById('inst-break-dur')?.value)  || 15;
+      const lunchAfter= parseInt(document.getElementById('inst-lunch-after')?.value)|| 0;
+      const lunchDur  = parseInt(document.getElementById('inst-lunch-dur')?.value)  || 30;
+
+      const [h0, m0]  = startTime.split(':').map(Number);
+      let minutesSoFar = h0 * 60 + m0;
+
+      const preview   = document.getElementById('periodPreview');
+      if (!preview) return;
+
+      let html = '';
+      for (let p = 1; p <= periods; p++) {
+        const start = minutesToTime(minutesSoFar);
+        minutesSoFar += duration;
+        const end   = minutesToTime(minutesSoFar);
+
+        html += `<div class="bg-gray-800 rounded-lg px-2 py-2 text-center border border-gray-700">
+          <div class="text-xs font-semibold text-brand-400">P${p}</div>
+          <div class="text-xs text-gray-400 mt-0.5">${start}</div>
+          <div class="text-xs text-gray-600">→ ${end}</div>
+        </div>`;
+
+        // Insert break indicator
+        if (breakAfter > 0 && p === breakAfter) {
+          html += `<div class="bg-amber-900/20 rounded-lg px-2 py-2 text-center border border-amber-800/40">
+            <div class="text-xs font-semibold text-amber-400">Break</div>
+            <div class="text-xs text-amber-500 mt-0.5">${minutesToTime(minutesSoFar)}</div>
+            <div class="text-xs text-amber-600">${breakDur}m</div>
+          </div>`;
+          minutesSoFar += breakDur;
+        }
+        if (lunchAfter > 0 && p === lunchAfter) {
+          html += `<div class="bg-emerald-900/20 rounded-lg px-2 py-2 text-center border border-emerald-800/40">
+            <div class="text-xs font-semibold text-emerald-400">Lunch</div>
+            <div class="text-xs text-emerald-500 mt-0.5">${minutesToTime(minutesSoFar)}</div>
+            <div class="text-xs text-emerald-600">${lunchDur}m</div>
+          </div>`;
+          minutesSoFar += lunchDur;
+        }
+      }
+      preview.innerHTML = html;
+    }
+
+    function minutesToTime(mins) {
+      const h = Math.floor(mins / 60) % 24;
+      const m = mins % 60;
+      return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+    }
+
+    // Update preview on any institution field change
+    ['inst-start','inst-duration','inst-periods','inst-break-after','inst-break-dur','inst-lunch-after','inst-lunch-dur'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', updatePeriodPreview);
+    });
+    updatePeriodPreview();
+  </script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timetable — ChronoGen</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+  <link rel="stylesheet" href="/output.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen font-sans">
+
+  <!-- Nav -->
+  <nav class="border-b border-gray-800 bg-gray-950/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
+          <i class="ri-time-line text-white text-sm"></i>
+        </div>
+        <span class="font-bold text-lg tracking-tight">ChronoGen</span>
+      </div>
+      <div class="flex items-center gap-1 flex-wrap">
+        <a href="/"        class="px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-colors">Dashboard</a>
+        <a href="/input"   class="px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-colors">Input Data</a>
+        <a href="/generate"class="px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-colors">Generate</a>
+        <a href="/output"  class="px-3 py-2 rounded-lg text-sm font-medium text-brand-400 bg-brand-500/10">Timetable</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-white">Generated Timetable</h1>
+        <p class="text-gray-500 mt-1 text-sm" id="subtitleLine">Loading...</p>
+      </div>
+      <div class="flex flex-wrap gap-2 no-print">
+        <a href="/api/export/csv"
+           class="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white font-medium px-3 py-2 rounded-xl text-sm transition-colors">
+          <i class="ri-file-excel-line"></i> CSV
+        </a>
+        <a href="/api/export/json"
+           class="inline-flex items-center gap-2 bg-sky-700 hover:bg-sky-600 text-white font-medium px-3 py-2 rounded-xl text-sm transition-colors">
+          <i class="ri-code-box-line"></i> JSON
+        </a>
+        <a href="/api/export/html"
+           class="inline-flex items-center gap-2 bg-orange-700 hover:bg-orange-600 text-white font-medium px-3 py-2 rounded-xl text-sm transition-colors">
+          <i class="ri-html5-line"></i> HTML
+        </a>
+        <button onclick="printTimetable()"
+           class="inline-flex items-center gap-2 bg-purple-700 hover:bg-purple-600 text-white font-medium px-3 py-2 rounded-xl text-sm transition-colors">
+          <i class="ri-printer-line"></i> Print / PDF
+        </button>
+        <button onclick="loadTimetable()"
+           class="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium px-3 py-2 rounded-xl text-sm transition-colors border border-gray-700">
+          <i class="ri-refresh-line"></i> Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
+        <div class="text-xl font-bold text-brand-400" id="st-fitness">—</div>
+        <div class="text-gray-600 text-xs mt-1">Fitness Score</div>
+      </div>
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
+        <div class="text-xl font-bold text-emerald-400" id="st-classes">—</div>
+        <div class="text-gray-600 text-xs mt-1">Classes</div>
+      </div>
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
+        <div class="text-xl font-bold text-sky-400" id="st-teachers">—</div>
+        <div class="text-gray-600 text-xs mt-1">Teachers</div>
+      </div>
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
+        <div class="text-xl font-bold text-amber-400" id="st-rooms">—</div>
+        <div class="text-gray-600 text-xs mt-1">Rooms</div>
+      </div>
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
+        <div class="text-xl font-bold text-pink-400" id="st-lectures">—</div>
+        <div class="text-gray-600 text-xs mt-1">Total Lectures</div>
+      </div>
+    </div>
+
+    <!-- Utilisation Charts -->
+    <div id="chartsSection" class="hidden mb-6 grid grid-cols-1 md:grid-cols-2 gap-6 no-print">
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+        <h3 class="text-sm font-semibold text-white mb-1">Teacher Workload</h3>
+        <p class="text-xs text-gray-600 mb-4">Assigned lectures vs max per week · 🟢 &lt;85% · 🟡 85–100% · 🔴 over max</p>
+        <div class="h-52"><canvas id="teacherChart"></canvas></div>
+      </div>
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+        <h3 class="text-sm font-semibold text-white mb-1">Room Utilisation</h3>
+        <p class="text-xs text-gray-600 mb-4">% of available slots used · 🔵 Low · 🟡 Medium · 🔴 High</p>
+        <div class="h-52"><canvas id="roomChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Attendance Log Panel (toggles open) -->
+    <div class="mb-6 no-print">
+      <button onclick="loadAttendanceLog()"
+        class="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 border border-gray-700 text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-colors">
+        <i class="ri-calendar-check-line text-amber-400"></i> Teacher Attendance Log
+      </button>
+      <div id="attendancePanel" class="hidden mt-4 bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-800">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+            <h2 class="font-semibold text-white text-sm">Absence Records</h2>
+            <span class="text-xs text-gray-600">Click a teacher chip to filter · Records auto-load on open</span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <input id="att-name" type="text" placeholder="Search by teacher name..."
+              oninput="filterAttendance()"
+              class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500 w-48" />
+            <input id="att-from" type="date" onchange="filterAttendance()"
+              class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+            <input id="att-to" type="date" onchange="filterAttendance()"
+              class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+            <select id="att-sort" onchange="filterAttendance()"
+              class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <option value="date">Sort: Latest first</option>
+              <option value="name">Sort: By name</option>
+              <option value="most">Sort: Most absent</option>
+            </select>
+            <button onclick="attendanceAllRecords=[];loadAttendanceLog()"
+              class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 px-3 py-1.5 rounded-lg text-sm transition-colors"
+              title="Refresh records from server">
+              <i class="ri-refresh-line"></i>
+            </button>
+          </div>
+        </div>
+        <div id="attendanceList" class="p-5"></div>
+      </div>
+    </div>
+
+    <!-- View Tabs -->
+    <div class="flex gap-1 bg-gray-900 p-1 rounded-xl border border-gray-800 mb-4 w-fit no-print overflow-x-auto">
+      <button id="view-class-btn"   onclick="switchView('class')"   class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-800 text-white whitespace-nowrap">
+        <i class="ri-group-line"></i> Class View
+      </button>
+      <button id="view-teacher-btn" onclick="switchView('teacher')" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors text-gray-400 hover:text-gray-200 whitespace-nowrap">
+        <i class="ri-user-line"></i> Teacher View
+      </button>
+      <button id="view-room-btn"    onclick="switchView('room')"    class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors text-gray-400 hover:text-gray-200 whitespace-nowrap">
+        <i class="ri-building-line"></i> Room View
+      </button>
+    </div>
+
+    <!-- Filter -->
+    <div class="mb-5 flex items-center gap-3 no-print flex-wrap">
+      <div class="relative">
+        <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+        <input id="filterInput" type="text" placeholder="Filter by name or ID..."
+          oninput="filterTimetable()"
+          class="bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500 w-64" />
+      </div>
+      <span class="text-gray-600 text-sm" id="filterCount"></span>
+      <span class="text-xs text-gray-700 hidden sm:block">
+        💡 Drag cells to reschedule · 🟢 green = free slot · 🔴 red = conflict
+      </span>
+    </div>
+
+    <!-- Timetable -->
+    <div id="ttContent">
+      <div class="text-center py-20 text-gray-600">
+        <i class="ri-calendar3-line text-5xl mb-4 block"></i>
+        <p class="text-lg font-medium">No timetable yet</p>
+        <p class="text-sm mt-1">Go to <a href="/generate" class="text-brand-400 hover:underline">Generate</a> first.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Teacher Absence Modal -->
+  <div id="absenceModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-800 shrink-0">
+        <h2 id="absenceModalTitle" class="font-bold text-white">Teacher Substitution</h2>
+        <button onclick="closeAbsenceModal()" class="p-2 rounded-lg hover:bg-gray-800 text-gray-500 hover:text-gray-300 transition-colors">
+          <i class="ri-close-line text-xl"></i>
+        </button>
+      </div>
+      <div id="absenceModalBody" class="overflow-y-auto p-6 flex-1"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 bg-black/30 py-8 text-center text-sm mt-12 no-print">
+    <p class="text-gray-300 font-medium tracking-wide">ChronoGen · Team-Tech4ALL · Watch The Code 2026 · GEHU</p>
+    <p class="mt-2 text-gray-500 italic">Visualizing algorithms in real-time</p>
+    <div class="w-16 h-[1px] bg-emerald-400 mx-auto my-4 opacity-60"></div>
+    <div class="flex justify-center">
+      <a href="https://github.com/WTC-Group-2/wtc-round-2-group-2-tech4all#"
+         class="group p-3 rounded-full border border-white/10 hover:border-emerald-400 transition-all">
+        <i class="ri-github-fill text-xl text-gray-400 group-hover:text-emerald-400 transition"></i>
+      </a>
+    </div>
+    <p class="mt-4 text-gray-600">Built with ❤️ by Team-Tech4ALL</p>
+  </footer>
+
+  <script src="output.js"></script>
+  <script>
+    document.getElementById('absenceModal').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeAbsenceModal();
+    });
+  </script>
+</body>
+</html>

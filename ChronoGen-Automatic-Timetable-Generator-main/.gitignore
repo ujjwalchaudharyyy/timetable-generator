@@ -1,0 +1,24 @@
+# ── Dependencies ─────────────────────────────────────
+node_modules/
+
+# ── Environment ───────────────────────────────────────
+.env
+
+# ── Temp CSV uploads ──────────────────────────────────
+uploads/
+
+# ── Logs ─────────────────────────────────────────────
+*.log
+npm-debug.log*
+
+# ── OS ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Editor ────────────────────────────────────────────
+.vscode/
+.idea/
+
+# ── Tailwind compiled output (regenerated with: npm run css:build) ──
+# Comment this line out if you want to commit the compiled CSS
+# Frontend/output.css
